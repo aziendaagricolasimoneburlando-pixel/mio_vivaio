@@ -7,7 +7,7 @@ from PIL import Image
 
 st.set_page_config(page_title="AgriSmart Vivaio", layout="wide")
 
-# Connessione robusta
+# CONNESSIONE DIRETTA ALL'URL
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 if "GEMINI_API_KEY" in st.secrets:
@@ -15,11 +15,11 @@ if "GEMINI_API_KEY" in st.secrets:
 
 st.title("🌱 AgriSmart: Gestione Vivaio")
 
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard", "📅 Ciclo di Vita", "💰 Calcolo Costi", "👁️ IA Agronomo"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard", "📅 Ciclo di Vita", "💰 Gestione Costi", "👁️ IA Agronomo"])
 
 with tab2:
     st.header("Registra Nuova Semina")
-    with st.form("form_semina", clear_on_submit=True):
+    with st.form("form_semina"):
         v = st.text_input("Nome Varietà")
         d = st.date_input("Data Semina", datetime.now())
         s = st.number_input("Numero Semi", min_value=1, value=100)
@@ -29,23 +29,22 @@ with tab2:
 
         if submit:
             try:
-                # Legge il foglio esistente
+                # Legge il foglio usando l'URL dei secrets
                 df = conn.read(worksheet="Lotti", ttl=0)
                 
-                # Prepara i nuovi dati
                 nuovo_dato = pd.DataFrame([{
                     "Varietà": v, "Data_Semina": str(d), 
                     "Semi": s, "Nati": n, "Costo_Totale": c
                 }])
                 
-                # Aggiunge e aggiorna
                 df_finale = pd.concat([df, nuovo_dato], ignore_index=True)
                 conn.update(worksheet="Lotti", data=df_finale)
                 
-                st.success("✅ Lotto salvato con successo nel foglio Google!")
+                st.success("✅ Salvato con successo!")
                 st.balloons()
             except Exception as e:
-                st.error(f"Errore: {e}. Controlla che il foglio si chiami 'Lotti' e sia su 'Editor'.")
+                st.error(f"Errore: {e}")
+# ... il resto del codice rimane uguale
 
 with tab1:
     st.header("Storico Produzione")
